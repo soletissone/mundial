@@ -141,7 +141,7 @@ var INICIAL = {
 };
 
 var ESP = [
-  {id:"INTRO",nombre:"Intro FIFA WC 2026",emoji:"🌍",fig:["FWC 1","FWC 2","FWC 3","FWC 4","FWC 5","FWC 6","FWC 7","FWC 8","We Are Panini"]},
+  {id:"INTRO",nombre:"Intro FIFA WC 2026",emoji:"🌍",fig:["FWC 0","FWC 1","FWC 2","FWC 3","FWC 4","FWC 5","FWC 6","FWC 7","FWC 8"]},
   {id:"FWC",nombre:"World Cup History",emoji:"🏆",fig:["FWC 9","FWC 10","FWC 11","FWC 12","FWC 13","FWC 14","FWC 15","FWC 16","FWC 17","FWC 18","FWC 19"]},
   {id:"CC",nombre:"Coca-Cola Stars",emoji:"🥤",fig:["CC 1","CC 2","CC 3","CC 4","CC 5","CC 6","CC 7","CC 8","CC 9","CC 10","CC 11","CC 12","CC 13","CC 14"]}
 ];
@@ -239,7 +239,10 @@ function getAllFig() {
   var all = [];
   ESP.forEach(function(s) {
     s.fig.forEach(function(n, i) {
-      all.push({id: s.id+'_'+i, nombre: n, secId: s.id, secNombre: s.nombre, secEmoji: s.emoji});
+      // Extract number from name like "FWC 9" or "CC 1"
+      var parts = n.split(' ');
+      var num = parts.length >= 2 && !isNaN(parts[1]) ? parseInt(parts[1]) : (i+1);
+      all.push({id: s.id+'_'+i, nombre: n, secId: s.id, secNombre: s.nombre, secEmoji: s.emoji, num: num, equipo: null});
     });
   });
   GRUPOS.forEach(function(g) {
@@ -412,8 +415,9 @@ function renderRepetidas() {
 }
 
 function renderExportar() {
+  var falt = ALL.filter(function(f){return !col[f.id];});
   var txt = getTextoFaltantes();
-  return '<div class="card" style="margin-bottom:12px;background:#fef2f2;border:2px solid #fca5a5"><div style="font-weight:800;font-size:15px;margin-bottom:8px;color:#dc2626">Resetear album</div><div style="font-size:12px;color:#888;margin-bottom:10px">Borra todo tu progreso y empieza desde 0</div><button onclick="resetAlbum()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Borrar todo y empezar desde 0</button></div><div class="card" style="margin-bottom:12px"><div style="font-weight:900;font-size:16px;margin-bottom:4px">Exportar lista de faltantes</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div>';
+  return '<div class="card" style="margin-bottom:12px;background:#fef2f2;border:2px solid #fca5a5"><div style="font-weight:800;font-size:15px;margin-bottom:8px;color:#dc2626">Resetear album</div><div style="font-size:12px;color:#888;margin-bottom:10px">Borra todo tu progreso y empieza desde 0</div><button onclick="resetAlbum()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Borrar todo y empezar desde 0</button></div><div class="card" style="margin-bottom:12px"><div style="font-weight:900;font-size:16px;margin-bottom:4px">Exportar lista de faltantes</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div>';
 }
 
 function renderIntercambio() {
@@ -537,9 +541,9 @@ function procesarSobre() {
       var pfx = tokens[i], nm = parseInt(tokens[i+1]);
       var c;
       if(pfx === 'FWC') {
-        if(nm >= 1 && nm <= 8) c = 'INTRO_'+(nm-1);
+        if(nm >= 0 && nm <= 8) c = 'INTRO_'+nm;
         else if(nm >= 9 && nm <= 19) c = 'FWC_'+(nm-9);
-        else c = pfx+'_'+(nm-1);
+        else c = pfx+'_'+nm;
       } else if(pfx === 'CC') {
         c = 'CC_'+(nm-1);
       } else {
@@ -571,12 +575,14 @@ function getTextoFaltantes() {
     var k = f.equipo || f.secId;
     var nombre = f.eqNombre||f.secNombre||'Especiales';
     var emoji = f.eqEmoji||f.secEmoji||'';
-    if(!gs[k]) gs[k] = {nombre:nombre, emoji:emoji, nums:[]};
+    if(!gs[k]) gs[k] = {nombre:nombre, emoji:emoji, nums:[], prefijo: f.equipo || 'FWC'};
     gs[k].nums.push(f.num);
   });
   var txt = 'Figuritas App - Lista\n\nMe faltan\n';
   Object.values(gs).forEach(function(g) {
-    txt += g.nombre+' '+g.emoji+': '+g.nums.join(', ')+'\n';
+    if(g.nums.length > 0) {
+      txt += g.prefijo+' '+g.emoji+': '+g.nums.join(', ')+'\n';
+    }
   });
   txt += '\nTotal: '+falt.length+' figuritas';
   return txt;
