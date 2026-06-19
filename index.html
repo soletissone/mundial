@@ -333,7 +333,9 @@ function renderEsp(sec) {
   var btns = '';
   sec.fig.forEach(function(n,i) {
     var id = sec.id+'_'+i;
-    btns += figCard(id, i+1, n.split(' ')[0], col[id], rep[id]||0);
+    var parts = n.split(' ');
+    var num = parts.length >= 2 && !isNaN(parts[1]) ? parts[0]+' '+parts[1] : n;
+    btns += figCard(id, num, '', col[id], rep[id]||0);
   });
   return '<div class="card"><div class="card-header"><div class="card-title">'+sec.emoji+' '+sec.nombre+'</div><div class="card-count'+(t===sec.fig.length?' done':'')+'">'+t+'/'+sec.fig.length+'</div></div><div class="bar-wrap"><div class="bar-fill" style="width:'+p+'%"></div></div><div class="figs">'+btns+'</div></div>';
 }
@@ -572,16 +574,30 @@ function getTextoFaltantes() {
   var falt = ALL.filter(function(f){return !col[f.id];});
   var gs = {};
   falt.forEach(function(f) {
-    var k = f.equipo || f.secId;
-    var nombre = f.eqNombre||f.secNombre||'Especiales';
-    var emoji = f.eqEmoji||f.secEmoji||'';
-    if(!gs[k]) gs[k] = {nombre:nombre, emoji:emoji, nums:[], prefijo: f.equipo || 'FWC'};
-    gs[k].nums.push(f.num);
+    var k, prefijo, nombre, emoji, num;
+    if(f.equipo) {
+      // Regular team sticker
+      k = f.equipo;
+      prefijo = f.equipo;
+      nombre = f.eqNombre;
+      emoji = f.eqEmoji||'';
+      num = f.num;
+    } else {
+      // Special section - extract code from nombre like "FWC 9", "CC 1", "FWC 0"
+      var parts = f.nombre.split(' ');
+      prefijo = parts[0];
+      num = parts.length >= 2 ? parts[1] : String(f.num);
+      k = f.secId;
+      nombre = f.secNombre;
+      emoji = f.secEmoji||'';
+    }
+    if(!gs[k]) gs[k] = {nombre:nombre, emoji:emoji, items:[], prefijo:prefijo};
+    gs[k].items.push(num);
   });
   var txt = 'Figuritas App - Lista\n\nMe faltan\n';
   Object.values(gs).forEach(function(g) {
-    if(g.nums.length > 0) {
-      txt += g.prefijo+' '+g.emoji+': '+g.nums.join(', ')+'\n';
+    if(g.items.length > 0) {
+      txt += g.prefijo+' '+g.emoji+': '+g.items.join(', ')+'\n';
     }
   });
   txt += '\nTotal: '+falt.length+' figuritas';
